@@ -1,3 +1,4 @@
+
 import re
 import html
 import streamlit as st
@@ -21,7 +22,6 @@ st.set_page_config(
 
 # =====================================================
 # COLLEGE FAQ DATASET
-# Replace sample information with actual college details
 # =====================================================
 
 FAQS = [
@@ -137,13 +137,10 @@ STOPWORDS = {
 
 
 def preprocess_text(text):
-
     text = text.lower()
-
     text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
 
     tokenizer = TreebankWordTokenizer()
-
     tokens = tokenizer.tokenize(text)
 
     tokens = [
@@ -158,10 +155,7 @@ def preprocess_text(text):
 
 @st.cache_resource
 def create_chatbot():
-
-    questions = [
-        faq["question"] for faq in FAQS
-    ]
+    questions = [faq["question"] for faq in FAQS]
 
     vectorizer = TfidfVectorizer(
         tokenizer=preprocess_text,
@@ -178,51 +172,7 @@ def create_chatbot():
 vectorizer, faq_vectors = create_chatbot()
 
 
-def get_answer(user_question):
-
-    if not user_question.strip():
-
-        return {
-            "answer": "Please enter a question so I can help you.",
-            "score": 0,
-            "matched": False
-        }
-
-    question_vector = vectorizer.transform(
-        [user_question]
-    )
-
-    if question_vector.nnz == 0:
-
-        return fallback_response()
-
-    similarities = cosine_similarity(
-        question_vector,
-        faq_vectors
-    ).flatten()
-
-    best_index = similarities.argmax()
-
-    best_score = float(similarities[best_index])
-
-    # Configurable similarity threshold
-    SIMILARITY_THRESHOLD = 0.20
-
-    if best_score < SIMILARITY_THRESHOLD:
-
-        return fallback_response(best_score)
-
-    return {
-        "answer": FAQS[best_index]["answer"],
-        "score": best_score,
-        "matched": True,
-        "category": FAQS[best_index]["category"],
-        "matched_question": FAQS[best_index]["question"]
-    }
-
-
 def fallback_response(score=0):
-
     return {
         "answer": (
             "Sorry! I couldn't find a suitable answer "
@@ -236,8 +186,44 @@ def fallback_response(score=0):
     }
 
 
+def get_answer(user_question):
+    if not user_question or not user_question.strip():
+        return {
+            "answer": "Please enter a question so I can help you.",
+            "score": 0,
+            "matched": False
+        }
+
+    question_vector = vectorizer.transform([user_question])
+
+    if question_vector.nnz == 0:
+        return fallback_response()
+
+    similarities = cosine_similarity(
+        question_vector,
+        faq_vectors
+    ).flatten()
+
+    best_index = similarities.argmax()
+    best_score = float(similarities[best_index])
+
+    SIMILARITY_THRESHOLD = 0.20
+
+    if best_score < SIMILARITY_THRESHOLD:
+        return fallback_response(best_score)
+
+    return {
+        "answer": FAQS[best_index]["answer"],
+        "score": best_score,
+        "matched": True,
+        "category": FAQS[best_index]["category"],
+        "matched_question": FAQS[best_index]["question"]
+    }
+
+
 # =====================================================
 # PROFESSIONAL UI DESIGN
+# Original CSS preserved
 # =====================================================
 
 st.markdown("""
@@ -455,7 +441,6 @@ div[data-baseweb="input"] input {
 /* MOBILE */
 
 @media(max-width: 768px) {
-
     .main .block-container {
         padding: 1rem !important;
     }
@@ -472,7 +457,6 @@ div[data-baseweb="input"] input {
     .chat-assistant {
         max-width: 100%;
     }
-
 }
 
 </style>
@@ -497,11 +481,8 @@ if "page" not in st.session_state:
 with st.sidebar:
 
     st.markdown("## 🎓 CampusMate")
-
     st.caption("SMART COLLEGE ASSISTANT")
-
     st.markdown("---")
-
     st.markdown("### Explore Topics")
 
     pages = [
@@ -521,13 +502,13 @@ with st.sidebar:
     selected_page = st.radio(
         "Navigation",
         pages,
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="navigation"
     )
 
     st.session_state.page = selected_page
 
     st.markdown("---")
-
     st.caption("Your College Assistant")
 
 
@@ -536,10 +517,7 @@ with st.sidebar:
 # =====================================================
 
 st.title("Welcome to CampusMate 👋")
-
-st.markdown(
-    "Your Smart College FAQ Assistant"
-)
+st.markdown("Your Smart College FAQ Assistant")
 
 
 # =====================================================
@@ -550,67 +528,50 @@ if selected_page == "Dashboard":
 
     st.markdown("""
     <div class="hero">
-    <h2>How can I help you today?</h2>
-    <p>
-        Ask questions about admissions, courses,
-        examinations, library, transport, hostel,
-        fees, scholarships and placements.
-    </p>
-</div>
-""", unsafe_allow_html=True)
+        <h2>How can I help you today?</h2>
+        <p>
+            Ask questions about admissions, courses,
+            examinations, library, transport, hostel,
+            fees, scholarships and placements.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
+    with col1:
         st.markdown("""
         <div class="service-card">
-
-            <h3>📚 Academic Support</h3>
-
-            <p>
-            Find information about courses,
-            admissions and examinations.
-            </p>
-
+            <h3>Academic Support</h3>
+            <p>Find information about courses,
+            admissions and examinations.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
-
         st.markdown("""
         <div class="service-card">
-
-            <h3>🏫 Campus Services</h3>
-
-            <p>
-            Explore library, hostel and
-            transport information.
-            </p>
-
+            <h3>Campus Services</h3>
+            <p>Explore library, hostel and
+            transport information.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
-
         st.markdown("""
         <div class="service-card">
-
-            <h3>🎯 Student Services</h3>
-
-            <p>
-            Get help with placements,
-            fees and scholarships.
-            </p>
-
+            <h3>Student Services</h3>
+            <p>Get help with placements,
+            fees and scholarships.</p>
         </div>
         """, unsafe_allow_html=True)
 
     st.write("")
-
     st.subheader("Quick Questions")
 
     questions = [
         "What are the admission requirements?",
-        "Which courses are offered?",
+        "Which courses are offered by the college?",
         "What are the library timings?",
         "Is hostel accommodation available?",
         "How can I pay college fees?",
@@ -620,28 +581,23 @@ col1, col2, col3 = st.columns(3)
     cols = st.columns(2)
 
     for i, question in enumerate(questions):
-
         with cols[i % 2]:
-
             if st.button(
                 question,
                 key=f"quick_{i}",
                 use_container_width=True
             ):
-
                 st.session_state.pending_question = question
                 st.rerun()
 
 
 # =====================================================
-# CATEGORY NAVIGATION
+# CATEGORY FAQ PAGE
 # =====================================================
 
 else:
 
     st.subheader(f"📌 {selected_page}")
-
-    st.write("Explore frequently asked questions.")
 
     category_faqs = [
         faq for faq in FAQS
@@ -649,187 +605,68 @@ else:
     ]
 
     for index, faq in enumerate(category_faqs):
-
         with st.expander(faq["question"]):
-
             st.write(faq["answer"])
 
             if st.button(
                 "Ask CampusMate",
                 key=f"category_{selected_page}_{index}"
             ):
-
                 st.session_state.pending_question = faq["question"]
                 st.rerun()
 
 
 # =====================================================
-# CHATBOT SECTION
+# CHATBOT
 # =====================================================
 
 st.markdown("---")
-
 st.subheader("💬 Chat with CampusMate")
-
-st.caption(
-    "Ask your questions and get instant answers "
-    "from our NLP-based college FAQ system."
-)
-
-left, right = st.columns([5, 1])
-
-with right:
-
-    if st.button(
-        "🗑️ Clear Chat",
-        use_container_width=True
-    ):
-
-        st.session_state.messages = []
-        st.rerun()
-
-
-# =====================================================
-# DISPLAY CHAT HISTORY
-# =====================================================
-
-if not st.session_state.messages:
-
-    st.markdown("""
-    <div class="chat-assistant">
-
-        <strong>🎓 CampusMate</strong>
-
-        <p>
-        Hello! Welcome to CampusMate.
-
-        I am your smart college FAQ assistant.
-
-        Ask me anything about college services!
-        </p>
-
-    </div>
-    """, unsafe_allow_html=True)
-
 
 for message in st.session_state.messages:
 
-    safe_content = html.escape(message["content"])
-
     if message["role"] == "user":
-
         st.markdown(
-            f"""
-            <div class="chat-user">
-                <strong>You</strong><br>
-                {safe_content}
-            </div>
-            """,
+            f'<div class="chat-user"><strong>You</strong><br>{html.escape(message["content"])}</div>',
             unsafe_allow_html=True
         )
 
     else:
-
         st.markdown(
-            f"""
-            <div class="chat-assistant">
-                <strong>🎓 CampusMate</strong><br>
-                {safe_content}
-            </div>
-            """,
+            f'<div class="chat-assistant"><strong>CampusMate</strong><br>{html.escape(message["content"])}</div>',
             unsafe_allow_html=True
         )
 
 
-# =====================================================
-# CHAT INPUT AND RESPONSE
-# =====================================================
+def submit_question(question):
 
-pending_question = st.session_state.pop(
-    "pending_question",
-    None
-)
+    question = question.strip()
 
-user_question = st.chat_input(
-    "Type your college-related question here..."
-)
-
-question = pending_question or user_question
-
-if question:
+    if not question:
+        return
 
     st.session_state.messages.append({
         "role": "user",
         "content": question
     })
 
-    with st.spinner("CampusMate is searching for an answer..."):
-
-        result = get_answer(question)
-
-    answer = result["answer"]
+    result = get_answer(question)
 
     st.session_state.messages.append({
         "role": "assistant",
-        "content": answer
+        "content": result["answer"]
     })
 
+
+if "pending_question" in st.session_state:
+
+    pending = st.session_state.pop("pending_question")
+    submit_question(pending)
     st.rerun()
 
 
-# =====================================================
-# FAQ SEARCH
-# =====================================================
+user_question = st.chat_input("Ask me anything about your college...")
 
-st.markdown("---")
-
-st.subheader("🔎 Search College FAQs")
-
-search_query = st.text_input(
-    "Search FAQs",
-    placeholder="Search admissions, library, hostel, fees..."
-)
-
-if search_query:
-
-    results = []
-
-    for faq in FAQS:
-
-        combined = (
-            faq["question"] + " " +
-            faq["answer"] + " " +
-            faq["category"]
-        ).lower()
-
-        if search_query.lower() in combined:
-            results.append(faq)
-
-    if results:
-
-        for faq in results:
-
-            with st.expander(faq["question"]):
-
-                st.write(faq["answer"])
-
-    else:
-
-        st.info(
-            "No matching FAQs found. Try another keyword."
-        )
-
-
-# =====================================================
-# FOOTER
-# =====================================================
-
-st.markdown("---")
-
-st.markdown("""
-<div style="text-align:center; color:#526781; padding:20px;">
-    🎓 CampusMate | NLP-Based College FAQ Assistant
-    <br>
-    Built with Python and Streamlit
-</div>
-""", unsafe_allow_html=True)
+if user_question:
+    submit_question(user_question)
+    st.rerun()
