@@ -549,9 +549,8 @@ st.markdown(
 if selected_page == "Dashboard":
 
     st.markdown("""
-    st.markdown("""
-<div class="hero">
-    <h2>How can I help you today? 👋</h2>
+    <div class="hero">
+    <h2>How can I help you today?</h2>
     <p>
         Ask questions about admissions, courses,
         examinations, library, transport, hostel,
@@ -561,8 +560,6 @@ if selected_page == "Dashboard":
 """, unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
-
-    with col1:
 
         st.markdown("""
         <div class="service-card">
